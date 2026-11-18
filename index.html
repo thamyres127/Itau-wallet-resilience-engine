@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <title>Itaú Wallet Resilience Engine | Pagamentos PF</title>
+    <style>
+        :root {
+            color-scheme: light only;
+            --itau-orange: #EC7000;
+            --itau-orange-dark: #D46200;
+            --itau-blue: #003399;
+            --itau-yellow: #FFCC00;
+            --bg-light: #F4F5F7;
+            --card-white: #FFFFFF;
+            --text-dark: #1E2022;
+            --text-muted: #5C636A;
+            --success: #00875A;
+            --danger: #DE350B;
+            --warning: #FF991F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        html, body {
+            background-color: #F4F5F7 !important;
+            color: #1E2022 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            padding-bottom: 30px;
+        }
+
+        header {
+            width: 100%;
+            background: linear-gradient(135deg, #EC7000 0%, #D46200 100%) !important;
+            color: #FFFFFF !important;
+            padding: 22px 16px 32px;
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 22px;
+            box-shadow: 0 4px 14px rgba(236, 112, 0, 0.28);
+            text-align: center;
+        }
+
+        .brand-badge {
+            display: inline-block;
+            background-color: #003399 !important;
+            color: #FFCC00 !important;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        header h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #FFFFFF !important;
+        }
+
+        header p {
+            font-size: 12px;
+            color: #FFF5EB !important;
+            margin-top: 4px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            padding: 0 16px;
+            margin-top: -18px;
+        }
+
+        .wallet-card {
+            background: linear-gradient(135deg, #002266 0%, #003399 100%) !important;
+            color: #FFFFFF !important;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 51, 153, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            border-top: 4px solid #EC7000;
+        }
+
+        .wallet-card.pulse {
+            animation: nfcPulse 0.7s ease;
+        }
+
+        @keyframes nfcPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(236, 112, 0, 0.8); }
+            50% { transform: scale(1.02); box-shadow: 0 0 0 14px rgba(236, 112, 0, 0); }
+            100% { transform: scale(1); box-shadow: 0 8px 20px rgba(0, 51, 153, 0.25); }
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.18) !important;
+            color: #FFFFFF !important;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .nfc-icon {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFCC00 !important;
+        }
+
+        .card-number {
+            font-size: 17px;
+            letter-spacing: 2px;
+            font-family: monospace;
+            margin-bottom: 14px;
+            color: #FFFFFF !important;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #E2E8F0 !important;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 11px;
+            background-color: #00875A !important;
+            color: #FFFFFF !important;
+        }
+
+        .status-pill.error {
+            background-color: #DE350B !important;
+        }
+
+        .panel {
+            background-color: #FFFFFF !important;
+            color: #1E2022 !important;
+            border-radius: 16px;
+            padding: 18px;
+            margin-top: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #003399 !important;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #5C636A !important;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #CFD4DC !important;
+            border-radius: 10px;
+            font-size: 14px;
+            background-color: #F8F9FA !important;
+            color: #1E2022 !important;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .btn-full {
+            grid-column: span 2;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background-color: #EC7000 !important;
+            color: #FFFFFF !important;
+        }
+
+        .btn-secondary {
+            background-color: #E9ECEF !important;
+            color: #003399 !important;
+        }
+
+        .btn-auto {
+            background-color: #003399 !important;
+            color: #FFCC00 !important;
+        }
+
+        .btn-auto.active {
+            background-color: #DE350B !important;
+            color: #FFFFFF !important;
+        }
+
+        .telemetry-box {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 10px;
+            background-color: #F4F5F7 !important;
+            color: #1E2022 !important;
+            border-left: 4px solid #EC7000;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .telemetry-box.approved { border-left-color: #00875A; background-color: #E3FCEF !important; }
+        .telemetry-box.blocked { border-left-color: #DE350B; background-color: #FFEBE6 !important; }
+        .telemetry-box.review { border-left-color: #FF991F; background-color: #FFFAE6 !important; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .metric-item {
+            background-color: #F4F5F7 !important;
+            padding: 10px 6px;
+            border-radius: 10px;
+        }
+
+        .metric-val {
+            font-size: 15px;
+            font-weight: 800;
+            color: #EC7000 !important;
+        }
+
+        .metric-lbl {
+            font-size: 10px;
+            color: #5C636A !important;
+            margin-top: 2px;
+        }
+
+        .log-list {
+            max-height: 160px;
+            overflow-y: auto;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #EAECEF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1E2022 !important;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand-badge">itaú | Pagamentos PF</div>
+    <h1>Wallet Resilience Engine</h1>
+    <p>Auto-tokenização NFC & Pix Aproximação em Tempo Real</p>
+</header>
+
+<div class="container">
+    <div class="wallet-card" id="walletCard">
+        <div class="card-top">
+            <span class="card-type" id="cardFuncLabel">Conta Corrente • Múltiplo</span>
+            <span class="nfc-icon">))) NFC</span>
+        </div>
+        <div class="card-number">•••• •••• •••• 4512</div>
+        <div class="card-footer">
+            <span id="tokenHashDisplay">Token: tk_b12c...5d6e</span>
+            <span class="status-pill" id="tokenStatusPill">TOKEN ATIVO</span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">
+            <span>Simulador de Maquininha (POS)</span>
+            <span style="font-size: 11px; color: #5C636A;">Java + SQL + JS</span>
+        </div>
+
+        <div class="form-group">
+            <label for="modalidade">Modalidade de Pagamento</label>
+            <select id="modalidade">
+                <option value="NFC_CARTAO">Cartão por Aproximação (NFC)</option>
+                <option value="PIX_APROXIMACAO">Pix por Aproximação</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="valorTx">Valor da Compra (R$)</label>
+            <input type="number" id="valorTx" value="45.50" step="0.01">
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn-secondary" id="btnFalha">Simular Falha Sync</button>
+            <button type="button" class="btn-primary" id="btnAproximar">Aproximar Celular</button>
